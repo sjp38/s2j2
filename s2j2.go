@@ -66,6 +66,8 @@ func (bot *Bot) handle_privmsg(line string) {
 		}
 
 		bot.send_privmsg(fmt.Sprintf("Answer is %d\n", oper1 + oper2))
+	case "bye":
+		bot.send_privmsg("Good bye.  See you later ;)")
 	default:
 		bot.send_privmsg("Sorry, I cannot understand what you mean.")
 	}
