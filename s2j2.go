@@ -30,6 +30,15 @@ func (bot *Bot) connect_irc() {
 	fmt.Printf("Connected to %s\n", bot.server+":"+bot.port)
 }
 
+func (bot *Bot) handle_privmsg(line string) {
+	privmsg_pref := "PRIVMSG " + bot.channel + " :"
+	msg := strings.Split(line, privmsg_pref)[1]
+	if strings.HasPrefix(msg, bot.nick + ": ") {
+		fmt.Printf("This is to me! \n")
+	}
+	fmt.Printf("msg: %s\n", msg)
+}
+
 func main() {
 	fmt.Printf("%s\n", os.Args)
 	if len(os.Args) < 6 {
@@ -52,7 +61,8 @@ func main() {
 	defer bot.conn.Close()
 	rbuf := bufio.NewReader(bot.conn)
 	txtin := textproto.NewReader(rbuf)
-	fmt.Fprintf(bot.conn, "PRIVMSG " + bot.channel + " :" + "Hello, my name is S2J2\r\n")
+	privmsg_pref := "PRIVMSG " + bot.channel + " :"
+	fmt.Fprintf(bot.conn, privmsg_pref + "Hi, my name is S2J2.\r\n")
 	for {
 		line, err := txtin.ReadLine()
 		if err != nil {
@@ -65,6 +75,8 @@ func main() {
 			pongdata := strings.Split(line, "PING ")
 			fmt.Printf("%s", pongdata)
 			fmt.Fprintf(bot.conn, "PONG %s\r\n", pongdata[1])
+		} else if strings.Contains(line, privmsg_pref) {
+			bot.handle_privmsg(line)
 		}
 	}
 }
