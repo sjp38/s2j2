@@ -58,10 +58,12 @@ func (bot *Bot) handle_privmsg(line string) {
 		oper1, err := strconv.Atoi(tokens[1])
 		if err != nil {
 			bot.send_privmsg("operand 1 should be integer.")
+			return
 		}
 		oper2, err := strconv.Atoi(tokens[2])
 		if err != nil {
 			bot.send_privmsg("operand 2 should be integer.")
+			return
 		}
 
 		bot.send_privmsg(fmt.Sprintf("Answer is %d\n", oper1 + oper2))
