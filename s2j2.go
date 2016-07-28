@@ -33,16 +33,16 @@ func (bot *Bot) connect_irc() {
 
 func (bot *Bot) send_privmsg(msg string) {
 	privmsg_pref := "PRIVMSG " + bot.channel + " :"
-	fmt.Fprintf(bot.conn, privmsg_pref + msg + "\r\n")
+	fmt.Fprintf(bot.conn, privmsg_pref+msg+"\r\n")
 }
 
 func (bot *Bot) handle_privmsg(line string) {
 	privmsg_pref := "PRIVMSG " + bot.channel + " :"
 	msg := strings.Split(line, privmsg_pref)[1]
-	if !strings.HasPrefix(msg, bot.nick + ": ") {
+	if !strings.HasPrefix(msg, bot.nick+": ") {
 		return
 	}
-	msg = strings.Split(msg, bot.nick + ": ")[1]
+	msg = strings.Split(msg, bot.nick+": ")[1]
 
 	tokens := strings.Fields(msg)
 	fmt.Printf("tokens: %s\n", tokens)
@@ -65,7 +65,7 @@ func (bot *Bot) handle_privmsg(line string) {
 			return
 		}
 
-		bot.send_privmsg(fmt.Sprintf("Answer is %d\n", oper1 + oper2))
+		bot.send_privmsg(fmt.Sprintf("Answer is %d\n", oper1+oper2))
 	case "hi", "hello":
 		bot.send_privmsg("Hello, how are you? :D")
 	case "bye":
