@@ -39,7 +39,6 @@ func (bot *Bot) send_privmsg(msg string) {
 func (bot *Bot) handle_privmsg(line string) {
 	privmsg_pref := "PRIVMSG " + bot.channel + " :"
 	msg := strings.Split(line, privmsg_pref)[1]
-	fmt.Printf("msg: %s\n", msg)
 	if !strings.HasPrefix(msg, bot.nick + ": ") {
 		return
 	}
