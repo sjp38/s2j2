@@ -130,7 +130,7 @@ func main() {
 		fmt.Printf("read %s\n", line)
 		if strings.Contains(line, "PING ") {
 			pongdata := strings.Split(line, "PING ")
-			fmt.Printf("PONG %s", pongdata)
+			fmt.Printf("PONG %s\n", pongdata)
 			fmt.Fprintf(bot.conn, "PONG %s\r\n", pongdata[1])
 		} else if strings.Contains(line, privmsg_pref) {
 			bot.handle_privmsg(line)
