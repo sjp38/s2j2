@@ -6,6 +6,7 @@ import (
 	"net"
 	"net/textproto"
 	"os"
+	"strconv"
 	"strings"
 	"time"
 )
@@ -38,10 +39,36 @@ func (bot *Bot) send_privmsg(msg string) {
 func (bot *Bot) handle_privmsg(line string) {
 	privmsg_pref := "PRIVMSG " + bot.channel + " :"
 	msg := strings.Split(line, privmsg_pref)[1]
-	if strings.HasPrefix(msg, bot.nick + ": ") {
-		fmt.Printf("This is to me! \n")
-	}
 	fmt.Printf("msg: %s\n", msg)
+	if !strings.HasPrefix(msg, bot.nick + ": ") {
+		return
+	}
+	msg = strings.Split(msg, bot.nick + ": ")[1]
+
+	tokens := strings.Fields(msg)
+	fmt.Printf("tokens: %s\n", tokens)
+	if len(tokens) < 1 {
+		return
+	}
+	switch tokens[0] {
+	case "add":
+		if len(tokens) < 3 {
+			bot.send_privmsg("add should have two operands.")
+		}
+		oper1, err := strconv.Atoi(tokens[1])
+		if err != nil {
+			bot.send_privmsg("operand 1 should be integer.")
+		}
+		oper2, err := strconv.Atoi(tokens[2])
+		if err != nil {
+			bot.send_privmsg("operand 2 should be integer.")
+		}
+
+		bot.send_privmsg(fmt.Sprintf("Answer is %d\n", oper1 + oper2))
+	default:
+		bot.send_privmsg("Sorry, I cannot understand what you mean.")
+	}
+
 }
 
 func main() {
