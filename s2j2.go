@@ -67,7 +67,7 @@ func main() {
 	rbuf := bufio.NewReader(bot.conn)
 	txtin := textproto.NewReader(rbuf)
 	privmsg_pref := "PRIVMSG " + bot.channel + " :"
-	fmt.Fprintf(bot.conn, privmsg_pref + "Hi, my name is S2J2.\r\n")
+	bot.send_privmsg("Hi, my name is S2J2.")
 	for {
 		line, err := txtin.ReadLine()
 		if err != nil {
