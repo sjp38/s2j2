@@ -45,12 +45,6 @@ func (bot *Bot) handle_privmsg(line string) {
 		}
 	}
 
-	is_join := strings.Split(line, " JOIN ")
-	if len(is_join) >= 3 && peername != "" {
-		bot.send_privmsg("Welcome, " + peername)
-		return
-	}
-
 	privmsg_pref := "PRIVMSG " + bot.channel + " :"
 	msg := strings.Split(line, privmsg_pref)[1]
 	if !strings.HasPrefix(msg, bot.nick+": ") {
@@ -134,6 +128,18 @@ func main() {
 			fmt.Fprintf(bot.conn, "PONG %s\r\n", pongdata[1])
 		} else if strings.Contains(line, privmsg_pref) {
 			bot.handle_privmsg(line)
+		} else if strings.Contains(line, " JOIN ") {
+			peername := ""
+			if strings.HasPrefix(line, ":") {
+				tokens := strings.Split(line, "!")
+				if len(tokens) >= 2 {
+					peername = tokens[0][1:]
+				}
+			}
+
+			if peername != "" && peername != bot.nick {
+				bot.send_privmsg("Welcome, " + peername)
+			}
 		}
 	}
 }
