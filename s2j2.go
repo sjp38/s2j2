@@ -37,6 +37,20 @@ func (bot *Bot) send_privmsg(msg string) {
 }
 
 func (bot *Bot) handle_privmsg(line string) {
+	peername := ""
+	if strings.HasPrefix(line, ":") {
+		tokens := strings.Split(line, "!")
+		if len(tokens) >= 2 {
+			peername = tokens[0][1:]
+		}
+	}
+
+	is_join := strings.Split(line, " JOIN ")
+	if len(is_join) >= 3 && peername != "" {
+		bot.send_privmsg("Welcome, " + peername)
+		return
+	}
+
 	privmsg_pref := "PRIVMSG " + bot.channel + " :"
 	msg := strings.Split(line, privmsg_pref)[1]
 	if !strings.HasPrefix(msg, bot.nick+": ") {
