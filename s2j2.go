@@ -56,6 +56,10 @@ func (bot *Bot) handle_privmsg(line string) {
 	if !strings.HasPrefix(msg, bot.nick+": ") {
 		return
 	}
+	if peername == "" {
+		fmt.Printf("It's privmsg but no peername...\n")
+		return
+	}
 	msg = strings.Split(msg, bot.nick+": ")[1]
 
 	tokens := strings.Fields(msg)
@@ -79,15 +83,18 @@ func (bot *Bot) handle_privmsg(line string) {
 			return
 		}
 
-		bot.send_privmsg(fmt.Sprintf("Answer is %d\n", oper1+oper2))
+		bot.send_privmsg(fmt.Sprintf("%s: Answer is %d\n",
+			peername, oper1+oper2))
 	case "hi", "hello":
-		bot.send_privmsg("Hello, how are you? :D")
+		bot.send_privmsg(
+			fmt.Sprintf("Hello, %s. How are you? :D", peername))
 	case "bye":
-		bot.send_privmsg("Good bye.  See you later ;)")
+		bot.send_privmsg(
+			fmt.Sprintf("Good bye, %s.  See you later ;)", peername))
 	default:
-		bot.send_privmsg("Sorry, I cannot understand what you mean.")
+		bot.send_privmsg(
+			fmt.Sprintf("Sorry, %s. I cannot understand what you mean.", peername))
 	}
-
 }
 
 func main() {
