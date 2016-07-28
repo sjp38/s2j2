@@ -30,6 +30,11 @@ func (bot *Bot) connect_irc() {
 	fmt.Printf("Connected to %s\n", bot.server+":"+bot.port)
 }
 
+func (bot *Bot) send_privmsg(msg string) {
+	privmsg_pref := "PRIVMSG " + bot.channel + " :"
+	fmt.Fprintf(bot.conn, privmsg_pref + msg + "\r\n")
+}
+
 func (bot *Bot) handle_privmsg(line string) {
 	privmsg_pref := "PRIVMSG " + bot.channel + " :"
 	msg := strings.Split(line, privmsg_pref)[1]
