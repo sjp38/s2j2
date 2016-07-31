@@ -134,6 +134,12 @@ func (bot *Bot) do_poll(peername string, tokens []string) {
 				fmt.Sprintf("%s: %d (%s)",
 					selection, len(people), people))
 		}
+	case "cleanup_result":
+		if peername != poll_owner {
+			bot.send_privmsg("Only owner can cleanup result")
+			return
+		}
+		poll_results = map[int][]string{}
 	case "finish":
 		if peername != poll_owner {
 			bot.send_privmsg("Only owner can finish poll")
@@ -143,7 +149,7 @@ func (bot *Bot) do_poll(peername string, tokens []string) {
 		poll_results = make(map[int][]string)
 	case "help":
 		bot.send_privmsg("Usage: poll <command> [arg...]")
-		bot.send_privmsg("  commands: question, selections, notify, vote, vote_cancle, result, finish, help")
+		bot.send_privmsg("  commands: question, selections, notify, vote, vote_cancle, result, cleanup_result, finish, help")
 		bot.send_privmsg(" NOTE:")
 		bot.send_privmsg(" selections argument should be seperated by comma")
 		bot.send_privmsg(" vote argument should be integer")
