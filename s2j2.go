@@ -74,10 +74,11 @@ func (bot *Bot) do_poll(peername string, tokens []string) {
 		poll_results[selection] = append(poll_results[selection], peername)
 	case "result":
 		bot.send_privmsg("[Current result is...]")
-		for selection, people := range poll_results {
+		for i, selection := range poll_selections {
+			people := poll_results[i]
 			bot.send_privmsg(
-				fmt.Sprintf("selection %s: %d(%s)",
-					poll_selections[selection], len(people), people))
+				fmt.Sprintf("%s: %d (%s)",
+					selection, len(people), people))
 		}
 	case "help":
 		bot.send_privmsg("Usage: poll <command> [arg...]")
