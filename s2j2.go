@@ -54,10 +54,23 @@ func (bot *Bot) do_poll(peername string, tokens []string) {
 			poll_selections = append(poll_selections, fmt.Sprintf("%d. %s", i, strings.Trim(selection, " ")))
 		}
 	case "notify":
-		bot.send_privmsg("[Current Poll is]")
-		bot.send_privmsg(fmt.Sprintf("question: %s", poll_question))
-		bot.send_privmsg(fmt.Sprintf("selections: %s", poll_selections))
-		bot.send_privmsg(fmt.Sprintf("poll is started by %s", peername))
+		bot.send_privmsg(" ")
+		bot.send_privmsg("Current Poll")
+		bot.send_privmsg("============")
+		bot.send_privmsg(" ")
+		bot.send_privmsg(fmt.Sprintf("    Owner: %s", peername))
+		bot.send_privmsg(" ")
+		bot.send_privmsg("Question")
+		bot.send_privmsg("--------")
+		bot.send_privmsg(" ")
+		bot.send_privmsg(poll_question)
+		bot.send_privmsg(" ")
+		bot.send_privmsg("Selections")
+		bot.send_privmsg("--------")
+		for _, selection := range poll_selections {
+			bot.send_privmsg("  " + selection)
+		}
+		bot.send_privmsg(" ")
 	case "vote":
 		selection, err := strconv.Atoi(tokens[2])
 		if err != nil {
@@ -66,7 +79,10 @@ func (bot *Bot) do_poll(peername string, tokens []string) {
 		}
 		for _, name := range poll_results[selection] {
 			if peername == name {
-				bot.send_privmsg(fmt.Sprintf("%s, you already voted to the selection.", peername))
+				bot.send_privmsg(
+					fmt.Sprintf("%s, " +
+					"you already voted to the selection.",
+					peername))
 				return
 			}
 		}
