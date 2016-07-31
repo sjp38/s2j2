@@ -37,6 +37,57 @@ func (bot *Bot) send_privmsg(msg string) {
 	fmt.Fprintf(bot.conn, privmsg_pref+msg+"\r\n")
 }
 
+var poll_question string
+var poll_selections []string
+var poll_results map[int][]string
+
+func (bot *Bot) do_poll(peername string, tokens []string) {
+	command := tokens[1]
+	switch command {
+	case "question":
+		poll_question = strings.Join(tokens[2:], " ")
+	case "selections":
+		arg := strings.Join(tokens[2:], " ")
+		fmt.Printf("arg: %s\n")
+		poll_selections = []string{}
+		for i, selection := range strings.Split(arg, ",") {
+			poll_selections = append(poll_selections, fmt.Sprintf("%d. %s", i, strings.Trim(selection, " ")))
+		}
+	case "notify":
+		bot.send_privmsg("[Current Poll is]")
+		bot.send_privmsg(fmt.Sprintf("question: %s", poll_question))
+		bot.send_privmsg(fmt.Sprintf("selections: %s", poll_selections))
+		bot.send_privmsg(fmt.Sprintf("poll is started by %s", peername))
+	case "vote":
+		selection, err := strconv.Atoi(tokens[2])
+		if err != nil {
+			bot.send_privmsg("Selection should be integer.")
+			return
+		}
+		for _, name := range poll_results[selection] {
+			if peername == name {
+				bot.send_privmsg(fmt.Sprintf("%s, you already voted to the selection.", peername))
+				return
+			}
+		}
+
+		poll_results[selection] = append(poll_results[selection], peername)
+	case "result":
+		bot.send_privmsg("[Current result is...]")
+		for selection, people := range poll_results {
+			bot.send_privmsg(
+				fmt.Sprintf("selection %s: %d(%s)",
+					poll_selections[selection], len(people), people))
+		}
+	case "help":
+		bot.send_privmsg("Usage: poll <command> [arg...]")
+		bot.send_privmsg("  commands: question, selections, notify, vote, vote_cancel, result, help")
+		bot.send_privmsg(" NOTE:")
+		bot.send_privmsg(" selections argument should be seperated by comma")
+		bot.send_privmsg(" vote argument should be integer")
+	}
+}
+
 func (bot *Bot) handle_privmsg(line string) {
 	peername := ""
 	if strings.HasPrefix(line, ":") {
@@ -63,6 +114,8 @@ func (bot *Bot) handle_privmsg(line string) {
 		return
 	}
 	switch tokens[0] {
+	case "poll":
+		bot.do_poll(peername, tokens)
 	case "ex":
 		if len(tokens) < 2 {
 			bot.send_privmsg("You forgot command.")
@@ -115,6 +168,8 @@ func main() {
 		fmt.Printf("usage: s2j2 <server> <port> <pass> <channel> <nick>\n")
 		os.Exit(1)
 	}
+	poll_results = make(map[int][]string)
+
 	bot := &Bot{
 		server:  os.Args[1],
 		port:    os.Args[2],
