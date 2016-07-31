@@ -80,6 +80,11 @@ func (bot *Bot) do_poll(peername string, tokens []string) {
 			bot.send_privmsg("Selection should be integer.")
 			return
 		}
+		if selection < 0 || selection >= len(poll_selections) {
+			bot.send_privmsg(fmt.Sprintf("Selection should be >=0, <%d",
+				len(poll_selections)))
+			return
+		}
 		for _, name := range poll_results[selection] {
 			if peername == name {
 				bot.send_privmsg(
@@ -101,7 +106,7 @@ func (bot *Bot) do_poll(peername string, tokens []string) {
 		}
 	case "help":
 		bot.send_privmsg("Usage: poll <command> [arg...]")
-		bot.send_privmsg("  commands: question, selections, notify, vote, vote_cancel, result, help")
+		bot.send_privmsg("  commands: question, selections, notify, vote, result, help")
 		bot.send_privmsg(" NOTE:")
 		bot.send_privmsg(" selections argument should be seperated by comma")
 		bot.send_privmsg(" vote argument should be integer")
