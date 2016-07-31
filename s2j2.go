@@ -135,6 +135,10 @@ func (bot *Bot) do_poll(peername string, tokens []string) {
 					selection, len(people), people))
 		}
 	case "finish":
+		if peername != poll_owner {
+			bot.send_privmsg("Only owner can finish poll")
+			return
+		}
 		poll_question = ""
 		poll_results = make(map[int][]string)
 	case "help":
