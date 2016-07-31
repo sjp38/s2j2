@@ -46,6 +46,10 @@ func (bot *Bot) do_poll(peername string, tokens []string) {
 	command := tokens[1]
 	switch command {
 	case "question":
+		if poll_question != "" && peername != poll_owner {
+			bot.send_privmsg("Another poll is ongoing yet.")
+			return
+		}
 		poll_question = strings.Join(tokens[2:], " ")
 		poll_owner = peername
 	case "selections":
