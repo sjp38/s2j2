@@ -96,6 +96,17 @@ func (bot *Bot) do_poll(peername string, tokens []string) {
 		}
 
 		poll_results[selection] = append(poll_results[selection], peername)
+	case "vote_cancle":
+		for i, people := range poll_results {
+			new_people := []string{}
+			for _, name := range people {
+				if name == peername {
+					continue
+				}
+				new_people = append(new_people, name)
+			}
+			poll_results[i] = new_people
+		}
 	case "result":
 		bot.send_privmsg("[Current result is...]")
 		for i, selection := range poll_selections {
@@ -106,7 +117,7 @@ func (bot *Bot) do_poll(peername string, tokens []string) {
 		}
 	case "help":
 		bot.send_privmsg("Usage: poll <command> [arg...]")
-		bot.send_privmsg("  commands: question, selections, notify, vote, result, help")
+		bot.send_privmsg("  commands: question, selections, notify, vote, vote_cancle, result, help")
 		bot.send_privmsg(" NOTE:")
 		bot.send_privmsg(" selections argument should be seperated by comma")
 		bot.send_privmsg(" vote argument should be integer")
