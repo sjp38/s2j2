@@ -40,12 +40,14 @@ func (bot *Bot) send_privmsg(msg string) {
 var poll_question string
 var poll_selections []string
 var poll_results map[int][]string
+var poll_owner string
 
 func (bot *Bot) do_poll(peername string, tokens []string) {
 	command := tokens[1]
 	switch command {
 	case "question":
 		poll_question = strings.Join(tokens[2:], " ")
+		poll_owner = peername
 	case "selections":
 		arg := strings.Join(tokens[2:], " ")
 		fmt.Printf("arg: %s\n")
@@ -53,12 +55,13 @@ func (bot *Bot) do_poll(peername string, tokens []string) {
 		for i, selection := range strings.Split(arg, ",") {
 			poll_selections = append(poll_selections, fmt.Sprintf("%d. %s", i, strings.Trim(selection, " ")))
 		}
+		poll_owner = peername
 	case "notify":
 		bot.send_privmsg(" ")
 		bot.send_privmsg("Current Poll")
 		bot.send_privmsg("============")
 		bot.send_privmsg(" ")
-		bot.send_privmsg(fmt.Sprintf("    Owner: %s", peername))
+		bot.send_privmsg(fmt.Sprintf("    Owner: %s", poll_owner))
 		bot.send_privmsg(" ")
 		bot.send_privmsg("Question")
 		bot.send_privmsg("--------")
