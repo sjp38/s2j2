@@ -4,6 +4,78 @@ s2j2
 s2j2 is a simple irc bot.
 
 
+Poll
+====
+
+You can request s2j2 to manage a poll.  s2j2 allows you to request setting a
+poll, notifying the poll, and let you know current result of the poll.  Note
+that s2j2 manages only one poll during a period.  In other word, s2j2 doesn't
+allow multiple polls in same period.  As consequence, people who started the
+poll have permission to finish the poll to avoid abusing.  Usage is simple.
+Just send a message that starts with nick of s2j2, follow it with colon and
+space(`: `), follow with commands for poll.  Commands are as below:
+
+- question <question>
+	Set question of the poll.  People who set the question is the owner of
+	the poll.
+- selections <selections that delimited by comma>
+	Set selections of the poll.  Each selection should be delimited by
+	comma.
+- notify
+	Notify current poll.
+- vote
+	Vote your selection.  You can vote to multiple selections.
+- vote_cancle
+	Cancle your votes.
+- result
+	Notify current result of the poll.
+- cleanup_result
+	Cancle all votes.  Only poll owner is allowed to do this.
+- finish
+	Finish the poll.  Only poll owner is allowed to do this.
+- help
+	Notify simple usage.
+
+Example Usage
+-------------
+
+An example usage is as below:
+
+```
+<@sj> s2j2: poll question What should we eat for today dinner?
+<@sj> s2j2: poll selections BBQ, Pizza, Steak
+<@sj> s2j2: notify
+< s2j2> Sorry, sj. I cannot understand what you mean.
+<@sj> s2j2: poll notify
+< s2j2>
+< s2j2> Current Poll
+< s2j2> ============
+< s2j2>
+< s2j2>     Owner: sj
+< s2j2>
+< s2j2> Question
+< s2j2> --------
+< s2j2>
+< s2j2> What should we eat for today dinner?
+< s2j2>
+< s2j2> Selections
+< s2j2> --------
+< s2j2>   0. BBQ
+< s2j2>   1. Pizza
+< s2j2>   2. Steak
+< s2j2>
+<@sj> s2j2: poll vote 1
+<@sj> s2j2: poll result
+< s2j2> [Current result is...]
+< s2j2> 0. BBQ: 0 ([])
+< s2j2> 1. Pizza: 1 ([sj])
+< s2j2> 2. Steak: 0 ([])
+<@sj> s2j2: poll finish
+<@sj> s2j2: poll notify
+< s2j2> No poll is going on now.
+```
+
+
 Copyright
 =========
 
