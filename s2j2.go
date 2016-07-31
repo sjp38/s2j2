@@ -6,6 +6,7 @@ import (
 	"net"
 	"net/textproto"
 	"os"
+	"os/exec"
 	"strconv"
 	"strings"
 	"time"
@@ -62,6 +63,23 @@ func (bot *Bot) handle_privmsg(line string) {
 		return
 	}
 	switch tokens[0] {
+	case "ex":
+		if len(tokens) < 2 {
+			bot.send_privmsg("You forgot command.")
+		}
+		out, err := exec.Command("./" + tokens[1], tokens[2:]...).Output()
+		if err != nil {
+			fmt.Printf("error while command execution: %s\n", err)
+			bot.send_privmsg("Failed to execute your command.")
+		}
+		sout := string(out)
+		lines := strings.Split(sout, "\n")
+		for _, line := range lines {
+			if line == "" {
+				line = " "
+			}
+			bot.send_privmsg(line)
+		}
 	case "add":
 		if len(tokens) < 3 {
 			bot.send_privmsg("add should have two operands.")
