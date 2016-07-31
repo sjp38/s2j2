@@ -57,6 +57,11 @@ func (bot *Bot) do_poll(peername string, tokens []string) {
 		}
 		poll_owner = peername
 	case "notify":
+		if poll_question == "" {
+			bot.send_privmsg("No poll is going on now.")
+			return
+		}
+
 		bot.send_privmsg(" ")
 		bot.send_privmsg("Current Poll")
 		bot.send_privmsg("============")
@@ -75,6 +80,11 @@ func (bot *Bot) do_poll(peername string, tokens []string) {
 		}
 		bot.send_privmsg(" ")
 	case "vote":
+		if poll_question == "" {
+			bot.send_privmsg("No poll is going on now.")
+			return
+		}
+
 		selection, err := strconv.Atoi(tokens[2])
 		if err != nil {
 			bot.send_privmsg("Selection should be integer.")
@@ -97,6 +107,11 @@ func (bot *Bot) do_poll(peername string, tokens []string) {
 
 		poll_results[selection] = append(poll_results[selection], peername)
 	case "vote_cancle":
+		if poll_question == "" {
+			bot.send_privmsg("No poll is going on now.")
+			return
+		}
+
 		for i, people := range poll_results {
 			new_people := []string{}
 			for _, name := range people {
@@ -108,6 +123,10 @@ func (bot *Bot) do_poll(peername string, tokens []string) {
 			poll_results[i] = new_people
 		}
 	case "result":
+		if poll_question == "" {
+			bot.send_privmsg("No poll is going on now.")
+			return
+		}
 		bot.send_privmsg("[Current result is...]")
 		for i, selection := range poll_selections {
 			people := poll_results[i]
@@ -115,9 +134,12 @@ func (bot *Bot) do_poll(peername string, tokens []string) {
 				fmt.Sprintf("%s: %d (%s)",
 					selection, len(people), people))
 		}
+	case "finish":
+		poll_question = ""
+		poll_results = make(map[int][]string)
 	case "help":
 		bot.send_privmsg("Usage: poll <command> [arg...]")
-		bot.send_privmsg("  commands: question, selections, notify, vote, vote_cancle, result, help")
+		bot.send_privmsg("  commands: question, selections, notify, vote, vote_cancle, result, finish, help")
 		bot.send_privmsg(" NOTE:")
 		bot.send_privmsg(" selections argument should be seperated by comma")
 		bot.send_privmsg(" vote argument should be integer")
