@@ -72,23 +72,19 @@ func (bot *Bot) do_poll(peername string, tokens []string) {
 			return
 		}
 
-		bot.send_privmsg(" ")
-		bot.send_privmsg("Current Poll")
-		bot.send_privmsg("============")
-		bot.send_privmsg(" ")
-		bot.send_privmsg("    Owner: %s", poll_owner)
-		bot.send_privmsg(" ")
-		bot.send_privmsg("Question")
-		bot.send_privmsg("--------")
-		bot.send_privmsg(" ")
-		bot.send_privmsg(poll_question)
-		bot.send_privmsg(" ")
-		bot.send_privmsg("Selections")
-		bot.send_privmsg("----------")
+		msg := fmt.Sprintf("\n"+
+			"Current Poll\n"+
+			"============\n\n"+
+			"    Owner: %s\n\n"+
+			"Question\n"+
+			"--------\n\n"+
+			poll_question+"\n\n\n"+
+			"Selections\n"+
+			"----------\n\n", poll_owner)
 		for _, selection := range poll_selections {
-			bot.send_privmsg("  " + selection)
+			msg += "  " + selection + "\n"
 		}
-		bot.send_privmsg(" ")
+		bot.send_privmsg(msg)
 	case "vote":
 		if poll_question == "" {
 			bot.send_privmsg("No poll is going on now.")
