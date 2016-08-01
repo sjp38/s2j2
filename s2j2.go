@@ -105,9 +105,9 @@ func (bot *Bot) do_poll(peername string, tokens []string) {
 		for _, name := range poll_results[selection] {
 			if peername == name {
 				bot.send_privmsg(
-					fmt.Sprintf("%s, " +
-					"you already voted to the selection.",
-					peername))
+					fmt.Sprintf("%s, "+
+						"you already voted to the selection.",
+						peername))
 				return
 			}
 		}
@@ -195,7 +195,7 @@ func (bot *Bot) handle_privmsg(line string) {
 		if len(tokens) < 2 {
 			bot.send_privmsg("You forgot command.")
 		}
-		out, err := exec.Command("./" + tokens[1], tokens[2:]...).Output()
+		out, err := exec.Command("./"+tokens[1], tokens[2:]...).Output()
 		if err != nil {
 			fmt.Printf("error while command execution: %s\n", err)
 			bot.send_privmsg("Failed to execute your command.")
