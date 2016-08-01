@@ -36,6 +36,9 @@ func (bot *Bot) send_privmsg(format string, args ...interface{}) {
 	privmsg_pref := "PRIVMSG " + bot.channel + " :"
 	msg := fmt.Sprintf(format, args...)
 	for _, line := range strings.Split(msg, "\n") {
+		if line == "" {
+			line = " "
+		}
 		fmt.Fprintf(bot.conn, privmsg_pref+line+"\r\n")
 	}
 }
