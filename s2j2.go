@@ -73,7 +73,7 @@ func (bot *Bot) do_poll(peername string, tokens []string) {
 		bot.send_privmsg("Current Poll")
 		bot.send_privmsg("============")
 		bot.send_privmsg(" ")
-		bot.send_privmsg(fmt.Sprintf("    Owner: %s", poll_owner))
+		bot.send_privmsg("    Owner: %s", poll_owner)
 		bot.send_privmsg(" ")
 		bot.send_privmsg("Question")
 		bot.send_privmsg("--------")
@@ -98,16 +98,15 @@ func (bot *Bot) do_poll(peername string, tokens []string) {
 			return
 		}
 		if selection < 0 || selection >= len(poll_selections) {
-			bot.send_privmsg(fmt.Sprintf("Selection should be >=0, <%d",
-				len(poll_selections)))
+			bot.send_privmsg("Selection should be >=0, <%d",
+				len(poll_selections))
 			return
 		}
 		for _, name := range poll_results[selection] {
 			if peername == name {
-				bot.send_privmsg(
-					fmt.Sprintf("%s, "+
-						"you already voted to the selection.",
-						peername))
+				bot.send_privmsg("%s, "+
+					"you already voted to the selection.",
+					peername)
 				return
 			}
 		}
@@ -137,9 +136,8 @@ func (bot *Bot) do_poll(peername string, tokens []string) {
 		bot.send_privmsg("[Current result is...]")
 		for i, selection := range poll_selections {
 			people := poll_results[i]
-			bot.send_privmsg(
-				fmt.Sprintf("%s: %d (%s)",
-					selection, len(people), people))
+			bot.send_privmsg("%s: %d (%s)",
+				selection, len(people), people)
 		}
 	case "cleanup_result":
 		if peername != poll_owner {
@@ -223,17 +221,15 @@ func (bot *Bot) handle_privmsg(line string) {
 			return
 		}
 
-		bot.send_privmsg(fmt.Sprintf("%s: Answer is %d\n",
-			peername, oper1+oper2))
+		bot.send_privmsg("%s: Answer is %d\n", peername, oper1+oper2)
 	case "hi", "hello":
-		bot.send_privmsg(
-			fmt.Sprintf("Hello, %s. How are you? :D", peername))
+		bot.send_privmsg("Hello, %s. How are you? :D", peername)
 	case "bye":
-		bot.send_privmsg(
-			fmt.Sprintf("Good bye, %s.  See you later ;)", peername))
+		bot.send_privmsg("Good bye, %s.  See you later ;)", peername)
 	default:
 		bot.send_privmsg(
-			fmt.Sprintf("Sorry, %s. I cannot understand what you mean.", peername))
+			"Sorry, %s. I cannot understand what you mean.",
+			peername)
 	}
 }
 
