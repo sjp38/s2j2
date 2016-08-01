@@ -78,7 +78,7 @@ func (bot *Bot) do_poll(peername string, tokens []string) {
 		bot.send_privmsg(poll_question)
 		bot.send_privmsg(" ")
 		bot.send_privmsg("Selections")
-		bot.send_privmsg("--------")
+		bot.send_privmsg("----------")
 		for _, selection := range poll_selections {
 			bot.send_privmsg("  " + selection)
 		}
