@@ -226,6 +226,7 @@ func (bot *Bot) handle_privmsg(line string) {
 	case "ex":
 		if len(tokens) < 2 {
 			bot.send_privmsg("You forgot command.")
+			return
 		}
 		out, err := exec.Command("./"+tokens[1], tokens[2:]...).Output()
 		if err != nil {
@@ -243,6 +244,7 @@ func (bot *Bot) handle_privmsg(line string) {
 	case "add":
 		if len(tokens) < 3 {
 			bot.send_privmsg("add should have two operands.")
+			return
 		}
 		oper1, err := strconv.Atoi(tokens[1])
 		if err != nil {
