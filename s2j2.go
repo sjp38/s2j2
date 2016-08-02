@@ -3,7 +3,10 @@ package main
 import (
 	"bufio"
 	"fmt"
+	"html"
+	"io/ioutil"
 	"net"
+	"net/http"
 	"net/textproto"
 	"os"
 	"os/exec"
@@ -160,6 +163,32 @@ func (bot *Bot) do_poll(peername string, tokens []string) {
 	}
 }
 
+func fetchHtmlTitle(url string) string {
+	resp, err := http.Get(url)
+	if err != nil {
+		return "Failed to GET the url"
+	}
+
+	body, err := ioutil.ReadAll(resp.Body)
+	resp.Body.Close()
+	if err != nil {
+		return "Failed to get body of response"
+	}
+
+	html_src := string(body)
+	// TODO: do parse correctly
+	titleStart := strings.Index(html_src, "<title>") + len("<title>")
+	titleEnd := strings.Index(html_src, "</title>")
+	if titleStart == -1 || titleEnd == -1 || titleEnd < titleStart {
+		return "Failed to find title"
+	}
+	title := html.UnescapeString(html_src[titleStart:titleEnd])
+	if titleEnd-titleStart > 240 {
+		title = title[0:240]
+	}
+	return title
+}
+
 func (bot *Bot) handle_privmsg(line string) {
 	peername := ""
 	if strings.HasPrefix(line, ":") {
@@ -186,6 +215,12 @@ func (bot *Bot) handle_privmsg(line string) {
 		return
 	}
 	switch tokens[0] {
+	case "htmltitle":
+		if len(tokens) < 2 {
+			bot.send_privmsg("You forgot html address.")
+			return
+		}
+		bot.send_privmsg("Title: %s", fetchHtmlTitle(tokens[1]))
 	case "poll":
 		bot.do_poll(peername, tokens)
 	case "ex":
