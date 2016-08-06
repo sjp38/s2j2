@@ -42,6 +42,7 @@ func (bot *Bot) send_privmsg(format string, args ...interface{}) {
 		if line == "" {
 			line = " "
 		}
+		fmt.Printf("[%s] SEND %s\n", time.Now(), privmsg_pref + line)
 		fmt.Fprintf(bot.conn, privmsg_pref+line+"\r\n")
 	}
 }
@@ -300,6 +301,7 @@ func main() {
 		fmt.Printf("[%s] READ %s\n", time.Now(), line)
 		if strings.HasPrefix(line, "PING ") {
 			pongdata := strings.Split(line, "PING ")
+			fmt.Printf("[%s] SEND PONG %s\n", time.Now(), pongdata[1])
 			fmt.Fprintf(bot.conn, "PONG %s\r\n", pongdata[1])
 		} else if strings.Contains(line, privmsg_pref) {
 			bot.handle_privmsg(line)
