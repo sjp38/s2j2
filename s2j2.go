@@ -63,7 +63,6 @@ func (bot *Bot) do_poll(peername string, tokens []string) {
 		poll_owner = peername
 	case "selections":
 		arg := strings.Join(tokens[2:], " ")
-		fmt.Printf("arg: %s\n")
 		poll_selections = []string{}
 		for i, selection := range strings.Split(arg, ",") {
 			poll_selections = append(poll_selections, fmt.Sprintf("%d. %s", i, strings.Trim(selection, " ")))
@@ -210,7 +209,6 @@ func (bot *Bot) handle_privmsg(line string) {
 	msg = strings.Split(msg, bot.nick+": ")[1]
 
 	tokens := strings.Fields(msg)
-	fmt.Printf("tokens: %s\n", tokens)
 	if len(tokens) < 1 {
 		return
 	}
@@ -230,7 +228,6 @@ func (bot *Bot) handle_privmsg(line string) {
 		}
 		out, err := exec.Command("./"+tokens[1], tokens[2:]...).Output()
 		if err != nil {
-			fmt.Printf("error while command execution: %s\n", err)
 			bot.send_privmsg("Failed to execute your command.")
 		}
 		sout := string(out)
@@ -270,12 +267,11 @@ func (bot *Bot) handle_privmsg(line string) {
 }
 
 func main() {
-	fmt.Printf("%s\n", os.Args)
 	if len(os.Args) < 6 {
 		fmt.Printf("usage: s2j2 <server> <port> <pass> <channel> <nick>\n")
 		os.Exit(1)
 	}
-	poll_results = make(map[int][]string)
+	poll_results = map[int][]string{}
 
 	bot := &Bot{
 		server:  os.Args[1],
@@ -298,13 +294,12 @@ func main() {
 	for {
 		line, err := txtin.ReadLine()
 		if err != nil {
-			fmt.Printf("error while reading input!\n")
+			fmt.Printf("Error while reading input!\n")
 			break
 		}
-		fmt.Printf("read %s\n", line)
+		fmt.Printf("READ %s\n", line)
 		if strings.HasPrefix(line, "PING ") {
 			pongdata := strings.Split(line, "PING ")
-			fmt.Printf("PONG %s\n", pongdata[1])
 			fmt.Fprintf(bot.conn, "PONG %s\r\n", pongdata[1])
 		} else if strings.Contains(line, privmsg_pref) {
 			bot.handle_privmsg(line)
