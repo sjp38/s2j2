@@ -297,7 +297,7 @@ func main() {
 			fmt.Printf("Error while reading input!\n")
 			break
 		}
-		fmt.Printf("READ %s\n", line)
+		fmt.Printf("[%s] READ %s\n", time.Now(), line)
 		if strings.HasPrefix(line, "PING ") {
 			pongdata := strings.Split(line, "PING ")
 			fmt.Fprintf(bot.conn, "PONG %s\r\n", pongdata[1])
