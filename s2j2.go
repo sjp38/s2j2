@@ -42,7 +42,7 @@ func (bot *Bot) send_privmsg(format string, args ...interface{}) {
 		if line == "" {
 			line = " "
 		}
-		fmt.Printf("[%s] SEND %s\n", time.Now(), privmsg_pref + line)
+		fmt.Printf("[%s] SEND %s\n", time.Now(), privmsg_pref+line)
 		fmt.Fprintf(bot.conn, privmsg_pref+line+"\r\n")
 	}
 }
