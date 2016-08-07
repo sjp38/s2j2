@@ -261,14 +261,6 @@ func (bot *Bot) handle_privmsg(line string) {
 		return
 	}
 	switch tokens[0] {
-	case "sendgmail":
-		// TODO: support multi word subject and message
-		if len(tokens) < 4 {
-			bot.send_privmsg("Usage: sendgmail <recipients> <subject> <message>")
-			return
-		}
-		recipients := strings.Split(tokens[1], ",")
-		sendgmail(peername, recipients, tokens[2], tokens[3])
 	case "htmltitle":
 		if len(tokens) < 2 {
 			bot.send_privmsg("You forgot html address.")
