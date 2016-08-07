@@ -262,6 +262,7 @@ func (bot *Bot) handle_privmsg(line string) {
 	}
 	switch tokens[0] {
 	case "sendgmail":
+		// TODO: support multi word subject and message
 		if len(tokens) < 4 {
 			bot.send_privmsg("Usage: sendgmail <recipients> <subject> <message>")
 			return
