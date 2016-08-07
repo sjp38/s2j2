@@ -2,11 +2,13 @@ package main
 
 import (
 	"bufio"
+	"encoding/json"
 	"fmt"
 	"html"
 	"io/ioutil"
 	"net"
 	"net/http"
+	"net/smtp"
 	"net/textproto"
 	"os"
 	"os/exec"
@@ -189,6 +191,51 @@ func fetchHtmlTitle(url string) string {
 	return title
 }
 
+type account struct {
+	Username string
+	Password string
+}
+
+const gmailAccountFile = "gmailinfo"
+
+var gmailAccount account
+
+func read_gmailinfo() {
+	c, err := ioutil.ReadFile(gmailAccountFile)
+	if err != nil {
+		fmt.Printf("failed to read mail info file: %s\n", err)
+		return
+	}
+	if err := json.Unmarshal(c, &gmailAccount); err != nil {
+		fmt.Printf("failed to unmarshal mail info: %s\n", err)
+		return
+	}
+}
+
+func sendgmail(sender string, receipients []string, subject, message string) {
+	username := gmailAccount.Username
+	password := gmailAccount.Password
+	if username == "" || password == "" {
+		fmt.Printf("Mail info not read\n")
+		return
+	}
+	hostname := "smtp.gmail.com"
+	port := 587
+	auth := smtp.PlainAuth("", username, password, hostname)
+	msg := "To: "
+	for _, r := range receipients {
+		msg += r + ", "
+	}
+	msg = fmt.Sprintf("%s\r\nSubject: %s\r\n\r\nFrom: %s\r\n\r\n%s\r\n",
+		msg, subject, sender, message)
+	err := smtp.SendMail(
+		fmt.Sprintf("%s:%d", hostname, port),
+		auth, sender, receipients, []byte(msg))
+	if err != nil {
+		fmt.Printf("failed to send message: %s\n", err)
+	}
+}
+
 func (bot *Bot) handle_privmsg(line string) {
 	peername := ""
 	if strings.HasPrefix(line, ":") {
@@ -214,6 +261,13 @@ func (bot *Bot) handle_privmsg(line string) {
 		return
 	}
 	switch tokens[0] {
+	case "sendgmail":
+		if len(tokens) < 4 {
+			bot.send_privmsg("Usage: sendgmail <recipients> <subject> <message>")
+			return
+		}
+		recipients := strings.Split(tokens[1], ",")
+		sendgmail(peername, recipients, tokens[2], tokens[3])
 	case "htmltitle":
 		if len(tokens) < 2 {
 			bot.send_privmsg("You forgot html address.")
@@ -273,6 +327,7 @@ func main() {
 		os.Exit(1)
 	}
 	poll_results = map[int][]string{}
+	read_gmailinfo()
 
 	bot := &Bot{
 		server:  os.Args[1],
