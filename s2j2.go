@@ -309,7 +309,7 @@ func (bot *Bot) handle_privmsg(line string) {
 			return
 		}
 
-		bot.send_privmsg("%s: Answer is %d\n", peername, oper1+oper2)
+		bot.send_privmsg("%s: Answer is %d", peername, oper1+oper2)
 	case "hi", "hello":
 		bot.send_privmsg("Hello, %s. How are you? :D", peername)
 	case "bye":
