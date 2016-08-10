@@ -6,6 +6,7 @@ import (
 	"fmt"
 	"html"
 	"io/ioutil"
+	"math/rand"
 	"net"
 	"net/http"
 	"net/smtp"
@@ -261,6 +262,14 @@ func (bot *Bot) handle_privmsg(line string) {
 		return
 	}
 	switch tokens[0] {
+	case "pickone":
+		selections := tokens[1:]
+		if len(selections) < 1 {
+			bot.send_privmsg("You forgot selections")
+			return
+		}
+		bot.send_privmsg("I pick %s",
+			selections[rand.Intn(len(selections))])
 	case "htmltitle":
 		if len(tokens) < 2 {
 			bot.send_privmsg("You forgot html address.")
