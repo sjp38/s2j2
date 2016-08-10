@@ -336,6 +336,8 @@ func (bot *Bot) handle_privmsg(line string) {
 		bot.send_privmsg("Hello, %s. How are you? :D", peername)
 	case "bye":
 		bot.send_privmsg("Good bye, %s.  See you later ;)", peername)
+	case "commands":
+		bot.send_privmsg("answer order pick htmltitle poll ex add")
 	default:
 		bot.send_privmsg(
 			"Sorry, %s. I cannot understand what you mean.",
