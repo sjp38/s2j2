@@ -262,14 +262,13 @@ func (bot *Bot) handle_privmsg(line string) {
 		return
 	}
 	switch tokens[0] {
-	case "pickone":
+	case "pick":
 		selections := tokens[1:]
 		if len(selections) < 1 {
 			bot.send_privmsg("You forgot selections")
 			return
 		}
-		bot.send_privmsg("I pick %s",
-			selections[rand.Intn(len(selections))])
+		bot.send_privmsg("%s", selections[rand.Intn(len(selections))])
 	case "htmltitle":
 		if len(tokens) < 2 {
 			bot.send_privmsg("You forgot html address.")
