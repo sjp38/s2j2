@@ -262,6 +262,14 @@ func (bot *Bot) handle_privmsg(line string) {
 		return
 	}
 	switch tokens[0] {
+	case "answer":
+		if len(tokens) < 3 {
+			bot.send_privmsg(
+				"Need one question and two or more selections")
+			return
+		}
+		bot.send_privmsg("%s? %s",
+			tokens[1], tokens[2:][rand.Intn(len(tokens[2:]))])
 	case "order":
 		items := tokens[1:]
 		if len(items) < 1 {
