@@ -263,7 +263,7 @@ func (bot *Bot) handle_privmsg(line string) {
 	}
 	switch tokens[0] {
 	case "answer":
-		if len(tokens) < 3 {
+		if len(tokens) < 4 {
 			bot.send_privmsg(
 				"Need one question and two or more selections")
 			return
@@ -272,7 +272,7 @@ func (bot *Bot) handle_privmsg(line string) {
 			tokens[1], tokens[2:][rand.Intn(len(tokens[2:]))])
 	case "order":
 		items := tokens[1:]
-		if len(items) < 1 {
+		if len(items) < 2 {
 			bot.send_privmsg("You forgot items")
 			return
 		}
@@ -285,7 +285,7 @@ func (bot *Bot) handle_privmsg(line string) {
 		bot.send_privmsg(strings.Join(ordered, " "))
 	case "pick":
 		selections := tokens[1:]
-		if len(selections) < 1 {
+		if len(selections) < 2 {
 			bot.send_privmsg("You forgot selections")
 			return
 		}
