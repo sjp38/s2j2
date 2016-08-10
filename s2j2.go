@@ -262,6 +262,19 @@ func (bot *Bot) handle_privmsg(line string) {
 		return
 	}
 	switch tokens[0] {
+	case "order":
+		items := tokens[1:]
+		if len(items) < 1 {
+			bot.send_privmsg("You forgot items")
+			return
+		}
+		ordered := []string{}
+		for len(items) > 0 {
+			number := rand.Intn(len(items))
+			ordered = append(ordered, items[number])
+			items = append(items[:number], items[(number+1):]...)
+		}
+		bot.send_privmsg(strings.Join(ordered, " "))
 	case "pick":
 		selections := tokens[1:]
 		if len(selections) < 1 {
