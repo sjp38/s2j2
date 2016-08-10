@@ -156,7 +156,7 @@ func (bot *Bot) do_poll(peername string, tokens []string) {
 			return
 		}
 		poll_question = ""
-		poll_results = make(map[int][]string)
+		poll_results = map[int][]string{}
 	case "help":
 		bot.send_privmsg("Usage: poll <command> [arg...]")
 		bot.send_privmsg("  commands: question, selections, notify, vote, vote_cancle, result, cleanup_result, finish, help")
