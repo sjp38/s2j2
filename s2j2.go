@@ -13,6 +13,7 @@ import (
 	"net/textproto"
 	"os"
 	"os/exec"
+	"path/filepath"
 	"strconv"
 	"strings"
 	"time"
@@ -301,6 +302,10 @@ func (bot *Bot) handle_privmsg(line string) {
 	case "ex":
 		if len(tokens) < 2 {
 			bot.send_privmsg("You forgot command.")
+			return
+		}
+		if filepath.Dir(tokens[1]) != "." {
+			bot.send_privmsg("Wrong path command.")
 			return
 		}
 		out, err := exec.Command("./"+tokens[1], tokens[2:]...).Output()
