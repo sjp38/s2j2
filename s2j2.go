@@ -242,6 +242,47 @@ func sendgmail(sender string, receipients []string, subject, message string) {
 	}
 }
 
+var rawMsgToMsgKeyMap = map[string]string{
+	"hi":            "hi",
+	"hello":         "hi",
+	"bye":           "bye",
+	"see you later": "bye",
+}
+
+func rawMsgToMessageKey(rawMessage string) string {
+	key, ok := rawMsgToMsgKeyMap[rawMessage]
+	if !ok {
+		return "exception"
+	}
+	return key
+}
+
+func loadMsgToKey(filepath string) {
+	c, err := ioutil.ReadFile(filepath)
+	if err != nil {
+		fmt.Printf("failed to read messages from file: %s\n", err)
+		return
+	}
+	if err := json.Unmarshal(c, &rawMsgToMsgKeyMap); err != nil {
+		fmt.Printf("failed to unmarshal messages: %s\n", err)
+		os.Exit(1)
+		return
+	}
+}
+
+func saveMsgToKey(filepath string) {
+	bytes, err := json.Marshal(rawMsgToMsgKeyMap)
+	if err != nil {
+		fmt.Printf("failed to marshal messages: %s\n", err)
+		return
+	}
+
+	if err := ioutil.WriteFile(filepath, bytes, 0600); err != nil {
+		fmt.Printf("failed to write messages: %s\n", err)
+		return
+	}
+}
+
 var varMessages = map[string][]string{
 	"intro":     {"Hi, everyone."},
 	"welcome":   {"Welcome, $peername"},
@@ -388,14 +429,12 @@ func (bot *Bot) handle_privmsg(line string) {
 		}
 
 		bot.send_privmsg("%s: Answer is %d", peername, oper1+oper2)
-	case "hi", "hello":
-		bot.answerTo("hi", peername)
-	case "bye":
-		bot.answerTo("bye", peername)
 	case "commands":
 		bot.send_privmsg("answer order pick htmltitle poll ex add")
 	default:
-		bot.answerTo("exception", peername)
+		// Human-like dialogue
+		key := rawMsgToMessageKey(msg)
+		bot.answerTo(key, peername)
 	}
 }
 
@@ -409,6 +448,10 @@ func main() {
 	varmsgsFile := "var_msgs.json"
 	loadVarMessges(varmsgsFile)
 	saveVarMessages(varmsgsFile)
+
+	msgtoKeyFile := "msg_to_key.json"
+	loadMsgToKey(msgtoKeyFile)
+	saveMsgToKey(msgtoKeyFile)
 
 	bot := &Bot{
 		server:  os.Args[1],
