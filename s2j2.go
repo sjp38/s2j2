@@ -257,17 +257,17 @@ func rawMsgToMessageKey(rawMessage string) string {
 	return key
 }
 
-func loadMsgToKey(filepath string) {
+func loadMsgToKey(filepath string) bool {
 	c, err := ioutil.ReadFile(filepath)
 	if err != nil {
 		fmt.Printf("failed to read messages from file: %s\n", err)
-		return
+		return false
 	}
 	if err := json.Unmarshal(c, &rawMsgToMsgKeyMap); err != nil {
 		fmt.Printf("failed to unmarshal messages: %s\n", err)
-		os.Exit(1)
-		return
+		return false
 	}
+	return true
 }
 
 func saveMsgToKey(filepath string) {
@@ -301,16 +301,18 @@ func getVarMessage(key, peername string) string {
 	return strings.Replace(format, "$peername", peername, -1)
 }
 
-func loadVarMessges(filepath string) {
+func loadVarMessges(filepath string) bool {
 	c, err := ioutil.ReadFile(filepath)
 	if err != nil {
 		fmt.Printf("failed to read messages from file: %s\n", err)
-		return
+		return false
 	}
 	if err := json.Unmarshal(c, &varMessages); err != nil {
 		fmt.Printf("failed to unmarshal messages: %s\n", err)
-		return
+		return false
 	}
+
+	return true
 }
 
 func saveVarMessages(filepath string) {
@@ -446,12 +448,14 @@ func main() {
 	poll_results = map[int][]string{}
 	read_gmailinfo()
 	varmsgsFile := "var_msgs.json"
-	loadVarMessges(varmsgsFile)
-	saveVarMessages(varmsgsFile)
+	if (!loadVarMessges(varmsgsFile)) {
+		saveVarMessages(varmsgsFile)
+	}
 
 	msgtoKeyFile := "msg_to_key.json"
-	loadMsgToKey(msgtoKeyFile)
-	saveMsgToKey(msgtoKeyFile)
+	if (!loadMsgToKey(msgtoKeyFile)) {
+		saveMsgToKey(msgtoKeyFile)
+	}
 
 	bot := &Bot{
 		server:  os.Args[1],
