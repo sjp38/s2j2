@@ -70,7 +70,9 @@ func (bot *Bot) do_poll(peername string, tokens []string) {
 		arg := strings.Join(tokens[2:], " ")
 		poll_selections = []string{}
 		for i, selection := range strings.Split(arg, ",") {
-			poll_selections = append(poll_selections, fmt.Sprintf("%d. %s", i, strings.Trim(selection, " ")))
+			poll_selections = append(poll_selections,
+				fmt.Sprintf("%d. %s", i,
+					strings.Trim(selection, " ")))
 		}
 		poll_owner = peername
 	case "notify":
@@ -160,7 +162,9 @@ func (bot *Bot) do_poll(peername string, tokens []string) {
 		poll_results = map[int][]string{}
 	case "help":
 		bot.send_privmsg("Usage: poll <command> [arg...]")
-		bot.send_privmsg("  commands: question, selections, notify, vote, vote_cancle, result, cleanup_result, finish, help")
+		bot.send_privmsg("  commands: question, selections, notify, ",
+			"vote, vote_cancle, result, ",
+			"cleanup_result, finish, help")
 		bot.send_privmsg(" NOTE:")
 		bot.send_privmsg(" selections argument should be seperated by comma")
 		bot.send_privmsg(" vote argument should be integer")
@@ -402,7 +406,7 @@ func main() {
 	}
 	poll_results = map[int][]string{}
 	read_gmailinfo()
-	varmsgsFile := "var_msgs"
+	varmsgsFile := "var_msgs.json"
 	loadVarMessges(varmsgsFile)
 	saveVarMessages(varmsgsFile)
 
