@@ -238,6 +238,53 @@ func sendgmail(sender string, receipients []string, subject, message string) {
 	}
 }
 
+var varMessages = map[string][]string{
+	"intro":     {"Hi, everyone."},
+	"welcome":   {"Welcome, $peername"},
+	"hi":        {"Hello, $peername.  How are you? :D"},
+	"bye":       {"Good bye, $peername.  See you later ;)"},
+	"exception": {"Sorry, $peername.  I cannot understand what you mean."},
+}
+
+func getVarMessage(key, peername string) string {
+	candidates, ok := varMessages[key]
+	if !ok {
+		return "..."
+	}
+	fmt.Printf("%s\n", candidates)
+	format := candidates[rand.Intn(len(candidates))]
+	return strings.Replace(format, "$peername", peername, -1)
+}
+
+func loadVarMessges(filepath string) {
+	c, err := ioutil.ReadFile(filepath)
+	if err != nil {
+		fmt.Printf("failed to read messages from file: %s\n", err)
+		return
+	}
+	if err := json.Unmarshal(c, &varMessages); err != nil {
+		fmt.Printf("failed to unmarshal messages: %s\n", err)
+		return
+	}
+}
+
+func saveVarMessages(filepath string) {
+	bytes, err := json.Marshal(varMessages)
+	if err != nil {
+		fmt.Printf("failed to marshal messages: %s\n", err)
+		return
+	}
+
+	if err := ioutil.WriteFile(filepath, bytes, 0600); err != nil {
+		fmt.Printf("failed to write messages: %s\n", err)
+		return
+	}
+}
+
+func (bot *Bot) answerTo(question, peername string) {
+	bot.send_privmsg(getVarMessage(question, peername))
+}
+
 func (bot *Bot) handle_privmsg(line string) {
 	peername := ""
 	if strings.HasPrefix(line, ":") {
@@ -338,15 +385,13 @@ func (bot *Bot) handle_privmsg(line string) {
 
 		bot.send_privmsg("%s: Answer is %d", peername, oper1+oper2)
 	case "hi", "hello":
-		bot.send_privmsg("Hello, %s. How are you? :D", peername)
+		bot.answerTo("hi", peername)
 	case "bye":
-		bot.send_privmsg("Good bye, %s.  See you later ;)", peername)
+		bot.answerTo("bye", peername)
 	case "commands":
 		bot.send_privmsg("answer order pick htmltitle poll ex add")
 	default:
-		bot.send_privmsg(
-			"Sorry, %s. I cannot understand what you mean.",
-			peername)
+		bot.answerTo("exception", peername)
 	}
 }
 
@@ -357,6 +402,9 @@ func main() {
 	}
 	poll_results = map[int][]string{}
 	read_gmailinfo()
+	varmsgsFile := "var_msgs"
+	loadVarMessges(varmsgsFile)
+	saveVarMessages(varmsgsFile)
 
 	bot := &Bot{
 		server:  os.Args[1],
@@ -375,7 +423,7 @@ func main() {
 	rbuf := bufio.NewReader(bot.conn)
 	txtin := textproto.NewReader(rbuf)
 	privmsg_pref := "PRIVMSG " + bot.channel + " :"
-	bot.send_privmsg("Hi, my name is S2J2.")
+	bot.send_privmsg(getVarMessage("intro", ""))
 	for {
 		line, err := txtin.ReadLine()
 		if err != nil {
