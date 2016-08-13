@@ -494,7 +494,7 @@ func main() {
 			}
 
 			if peername != "" && peername != bot.nick {
-				bot.send_privmsg("Welcome, " + peername)
+				bot.answerTo("welcome", peername)
 			}
 		}
 	}
