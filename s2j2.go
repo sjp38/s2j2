@@ -296,7 +296,6 @@ func getVarMessage(key, peername string) string {
 	if !ok {
 		return "..."
 	}
-	fmt.Printf("%s\n", candidates)
 	format := candidates[rand.Intn(len(candidates))]
 	return strings.Replace(format, "$peername", peername, -1)
 }
