@@ -13,7 +13,6 @@ import (
 	"net/textproto"
 	"os"
 	"os/exec"
-	"path/filepath"
 	"strconv"
 	"strings"
 	"time"
@@ -331,6 +330,37 @@ func (bot *Bot) answerTo(question, peername string) {
 	bot.send_privmsg(getVarMessage(question, peername))
 }
 
+var executables = map[string]bool{
+	"ls": false,
+}
+
+func loadExecutables(filepath string) bool {
+	c, err := ioutil.ReadFile(filepath)
+	if err != nil {
+		fmt.Printf("failed to read executables from file: %s\n", err)
+		return false
+	}
+	if err := json.Unmarshal(c, &executables); err != nil {
+		fmt.Printf("failed to unmarshal executables: %s\n", err)
+		return false
+	}
+
+	return true
+}
+
+func saveExecutables(filepath string) {
+	bytes, err := json.Marshal(executables)
+	if err != nil {
+		fmt.Printf("failed to marshal executables: %s\n", err)
+		return
+	}
+
+	if err := ioutil.WriteFile(filepath, bytes, 0600); err != nil {
+		fmt.Printf("failed to write executables: %s\n", err)
+		return
+	}
+}
+
 func (bot *Bot) handle_privmsg(line string) {
 	peername := ""
 	if strings.HasPrefix(line, ":") {
@@ -399,10 +429,12 @@ func (bot *Bot) handle_privmsg(line string) {
 			bot.send_privmsg("You forgot command.")
 			return
 		}
-		if filepath.Dir(tokens[1]) != "." {
-			bot.send_privmsg("Wrong path command.")
+		allowed, ok := executables[tokens[1]]
+		if !ok || !allowed {
+			bot.send_privmsg("It cannot be executed.")
 			return
 		}
+
 		out, err := exec.Command("./"+tokens[1], tokens[2:]...).Output()
 		if err != nil {
 			bot.send_privmsg("Failed to execute your command.")
@@ -449,13 +481,18 @@ func main() {
 	poll_results = map[int][]string{}
 	read_gmailinfo()
 	varmsgsFile := "var_msgs.json"
-	if (!loadVarMessges(varmsgsFile)) {
+	if !loadVarMessges(varmsgsFile) {
 		saveVarMessages(varmsgsFile)
 	}
 
 	msgtoKeyFile := "msg_to_key.json"
-	if (!loadMsgToKey(msgtoKeyFile)) {
+	if !loadMsgToKey(msgtoKeyFile) {
 		saveMsgToKey(msgtoKeyFile)
+	}
+
+	executableFile := "executables.json"
+	if !loadExecutables(executableFile) {
+		saveExecutables(executableFile)
 	}
 
 	bot := &Bot{
