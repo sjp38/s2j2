@@ -444,6 +444,7 @@ func main() {
 		fmt.Printf("usage: s2j2 <server> <port> <pass> <channel> <nick>\n")
 		os.Exit(1)
 	}
+	rand.Seed(time.Now().UTC().UnixNano())
 	poll_results = map[int][]string{}
 	read_gmailinfo()
 	varmsgsFile := "var_msgs.json"
