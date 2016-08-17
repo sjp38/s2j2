@@ -361,6 +361,97 @@ func saveExecutables(filepath string) {
 	}
 }
 
+// Return true if handled, false if not
+func (bot *Bot) handleCommand(msg, peername string) bool {
+	tokens := strings.Fields(msg)
+	if len(tokens) < 1 {
+		return false
+	}
+	switch tokens[0] {
+	case "answer":
+		if len(tokens) < 4 {
+			bot.send_privmsg(
+				"Need one question and two or more selections")
+			return true
+		}
+		bot.send_privmsg("%s? %s",
+			tokens[1], tokens[2:][rand.Intn(len(tokens[2:]))])
+	case "order":
+		items := tokens[1:]
+		if len(items) < 2 {
+			bot.send_privmsg("You forgot items")
+			return true
+		}
+		ordered := []string{}
+		for len(items) > 0 {
+			number := rand.Intn(len(items))
+			ordered = append(ordered, items[number])
+			items = append(items[:number], items[(number+1):]...)
+		}
+		bot.send_privmsg(strings.Join(ordered, " "))
+	case "pick":
+		selections := tokens[1:]
+		if len(selections) < 2 {
+			bot.send_privmsg("You forgot selections")
+			return true
+		}
+		bot.send_privmsg("%s", selections[rand.Intn(len(selections))])
+	case "htmltitle":
+		if len(tokens) < 2 {
+			bot.send_privmsg("You forgot html address.")
+			return true
+		}
+		bot.send_privmsg("Title: %s", fetchHtmlTitle(tokens[1]))
+	case "poll":
+		bot.do_poll(peername, tokens)
+	case "ex":
+		if len(tokens) < 2 {
+			bot.send_privmsg("You forgot command.")
+			return true
+		}
+		allowed, ok := executables[tokens[1]]
+		if !ok || !allowed {
+			bot.send_privmsg("It cannot be executed.")
+			return true
+		}
+
+		out, err := exec.Command("./"+tokens[1], tokens[2:]...).Output()
+		if err != nil {
+			bot.send_privmsg("Failed to execute your command.")
+		}
+		sout := string(out)
+		lines := strings.Split(sout, "\n")
+		for _, line := range lines {
+			if line == "" {
+				line = " "
+			}
+			bot.send_privmsg(line)
+		}
+	case "add":
+		if len(tokens) < 3 {
+			bot.send_privmsg("add should have two operands.")
+			return true
+		}
+		oper1, err := strconv.Atoi(tokens[1])
+		if err != nil {
+			bot.send_privmsg("operand 1 should be integer.")
+			return true
+		}
+		oper2, err := strconv.Atoi(tokens[2])
+		if err != nil {
+			bot.send_privmsg("operand 2 should be integer.")
+			return true
+		}
+
+		bot.send_privmsg("%s: Answer is %d", peername, oper1+oper2)
+	case "commands":
+		bot.send_privmsg("answer order pick htmltitle poll ex add")
+	default:
+		return false
+	}
+	return true
+}
+
 func (bot *Bot) handle_privmsg(line string) {
 	peername := ""
 	if strings.HasPrefix(line, ":") {
@@ -380,96 +471,17 @@ func (bot *Bot) handle_privmsg(line string) {
 		return
 	}
 	msg = strings.Split(msg, bot.nick+": ")[1]
-
-	msg = rawMsgToMessageKey(msg)
-
-	tokens := strings.Fields(msg)
-	if len(tokens) < 1 {
+	if bot.handleCommand(msg, peername) {
 		return
 	}
-	switch tokens[0] {
-	case "answer":
-		if len(tokens) < 4 {
-			bot.send_privmsg(
-				"Need one question and two or more selections")
-			return
-		}
-		bot.send_privmsg("%s? %s",
-			tokens[1], tokens[2:][rand.Intn(len(tokens[2:]))])
-	case "order":
-		items := tokens[1:]
-		if len(items) < 2 {
-			bot.send_privmsg("You forgot items")
-			return
-		}
-		ordered := []string{}
-		for len(items) > 0 {
-			number := rand.Intn(len(items))
-			ordered = append(ordered, items[number])
-			items = append(items[:number], items[(number+1):]...)
-		}
-		bot.send_privmsg(strings.Join(ordered, " "))
-	case "pick":
-		selections := tokens[1:]
-		if len(selections) < 2 {
-			bot.send_privmsg("You forgot selections")
-			return
-		}
-		bot.send_privmsg("%s", selections[rand.Intn(len(selections))])
-	case "htmltitle":
-		if len(tokens) < 2 {
-			bot.send_privmsg("You forgot html address.")
-			return
-		}
-		bot.send_privmsg("Title: %s", fetchHtmlTitle(tokens[1]))
-	case "poll":
-		bot.do_poll(peername, tokens)
-	case "ex":
-		if len(tokens) < 2 {
-			bot.send_privmsg("You forgot command.")
-			return
-		}
-		allowed, ok := executables[tokens[1]]
-		if !ok || !allowed {
-			bot.send_privmsg("It cannot be executed.")
-			return
-		}
 
-		out, err := exec.Command("./"+tokens[1], tokens[2:]...).Output()
-		if err != nil {
-			bot.send_privmsg("Failed to execute your command.")
-		}
-		sout := string(out)
-		lines := strings.Split(sout, "\n")
-		for _, line := range lines {
-			if line == "" {
-				line = " "
-			}
-			bot.send_privmsg(line)
-		}
-	case "add":
-		if len(tokens) < 3 {
-			bot.send_privmsg("add should have two operands.")
-			return
-		}
-		oper1, err := strconv.Atoi(tokens[1])
-		if err != nil {
-			bot.send_privmsg("operand 1 should be integer.")
-			return
-		}
-		oper2, err := strconv.Atoi(tokens[2])
-		if err != nil {
-			bot.send_privmsg("operand 2 should be integer.")
-			return
-		}
-
-		bot.send_privmsg("%s: Answer is %d", peername, oper1+oper2)
-	case "commands":
-		bot.send_privmsg("answer order pick htmltitle poll ex add")
-	default:
-		// Human-like dialogue
-		bot.answerTo(msg, peername)
+	msg = rawMsgToMessageKey(msg)
+	if bot.handleCommand(msg, peername) {
+		return
 	}
+
+	// Human-like dialogue
+	bot.answerTo(msg, peername)
 }
 
 func main() {
