@@ -327,6 +327,8 @@ func saveVarMessages(filepath string) {
 }
 
 func (bot *Bot) answerTo(question, peername string) {
+	// Wait for typing speed
+	time.Sleep(1 * time.Second)
 	bot.send_privmsg(getVarMessage(question, peername))
 }
 
