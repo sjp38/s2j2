@@ -351,6 +351,8 @@ func (bot *Bot) handle_privmsg(line string) {
 	}
 	msg = strings.Split(msg, bot.nick+": ")[1]
 
+	msg = rawMsgToMessageKey(msg)
+
 	tokens := strings.Fields(msg)
 	if len(tokens) < 1 {
 		return
@@ -434,8 +436,7 @@ func (bot *Bot) handle_privmsg(line string) {
 		bot.send_privmsg("answer order pick htmltitle poll ex add")
 	default:
 		// Human-like dialogue
-		key := rawMsgToMessageKey(msg)
-		bot.answerTo(key, peername)
+		bot.answerTo(msg, peername)
 	}
 }
 
