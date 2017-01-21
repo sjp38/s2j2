@@ -25,7 +25,7 @@ type Bot struct {
 	channel string
 	nick    string
 	conn    net.Conn
-	reader	*textproto.Reader
+	reader  *textproto.Reader
 }
 
 func (bot *Bot) connect_irc() {
