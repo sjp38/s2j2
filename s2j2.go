@@ -25,6 +25,7 @@ type Bot struct {
 	channel string
 	nick    string
 	conn    net.Conn
+	reader	*textproto.Reader
 }
 
 func (bot *Bot) connect_irc() {
@@ -36,6 +37,17 @@ func (bot *Bot) connect_irc() {
 		bot.connect_irc()
 	}
 	fmt.Printf("Connected to %s\n", bot.server+":"+bot.port)
+
+	fmt.Fprintf(bot.conn, "USER %s 8 * :%s\r\n", bot.nick, bot.nick)
+	fmt.Fprintf(bot.conn, "PASS %s\r\n", bot.pass)
+	fmt.Fprintf(bot.conn, "NICK %s\r\n", bot.nick)
+	fmt.Fprintf(bot.conn, "JOIN %s\r\n", bot.channel)
+	rbuf := bufio.NewReader(bot.conn)
+	bot.reader = textproto.NewReader(rbuf)
+}
+
+func (bot *Bot) read_msg() (string, error) {
+	return bot.reader.ReadLine()
 }
 
 func (bot *Bot) send_privmsg(format string, args ...interface{}) {
@@ -519,17 +531,11 @@ func main() {
 	}
 
 	bot.connect_irc()
-	fmt.Fprintf(bot.conn, "USER %s 8 * :%s\r\n", bot.nick, bot.nick)
-	fmt.Fprintf(bot.conn, "PASS %s\r\n", bot.pass)
-	fmt.Fprintf(bot.conn, "NICK %s\r\n", bot.nick)
-	fmt.Fprintf(bot.conn, "JOIN %s\r\n", bot.channel)
 	defer bot.conn.Close()
-	rbuf := bufio.NewReader(bot.conn)
-	txtin := textproto.NewReader(rbuf)
 	privmsg_pref := "PRIVMSG " + bot.channel + " :"
 	bot.send_privmsg(getVarMessage("intro", ""))
 	for {
-		line, err := txtin.ReadLine()
+		line, err := bot.read_msg()
 		if err != nil {
 			fmt.Printf("Error while reading input!\n")
 			break
