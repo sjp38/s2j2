@@ -63,10 +63,10 @@ func (bot *Bot) send_privmsg(format string, args ...interface{}) {
 }
 
 var (
-	poll_question string
+	poll_question   string
 	poll_selections []string
-	poll_results map[int][]string
-	poll_owner string
+	poll_results    map[int][]string
+	poll_owner      string
 )
 
 func (bot *Bot) do_poll(peername string, tokens []string) {
