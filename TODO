@@ -2,7 +2,6 @@ TODOs
 =====
 
 - multiple frontend
-- support various sentences
 - logging
 - more random, funny talks
 - cafeteria menu notice
@@ -17,3 +16,4 @@ DONE
 - html url title parsing
 - random picking
 - random ordering
+- support various sentences
