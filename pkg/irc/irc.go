@@ -9,7 +9,7 @@ import (
 	"time"
 )
 
-type Bot struct {
+type Conn struct {
 	server  string
 	port    string
 	pass    string
@@ -19,44 +19,45 @@ type Bot struct {
 	reader  *textproto.Reader
 }
 
-func NewIRC(srv, port, pass, chann, nick string) *Bot {
-	return &Bot{srv, port, pass, chann, nick, nil, nil}
+func NewIRC(srv, port, pass, chann, nick string) *Conn {
+	return &Conn{srv, port, pass, chann, nick, nil, nil}
 }
 
-func (bot *Bot) Connect() {
+func (conn *Conn) Connect() {
 	var err error
-	bot.conn, err = net.Dial("tcp", bot.server+":"+bot.port)
+	conn.conn, err = net.Dial("tcp", conn.server+":"+conn.port)
 	if err != nil {
-		fmt.Printf("Error while dialing to %s.\n", bot.server+":"+bot.port)
+		fmt.Printf("Error while dialing to %s.\n",
+			conn.server+":"+conn.port)
 		time.Sleep(10 * time.Second)
-		bot.Connect()
+		conn.Connect()
 	}
-	fmt.Printf("Connected to %s\n", bot.server+":"+bot.port)
+	fmt.Printf("Connected to %s\n", conn.server+":"+conn.port)
 
-	fmt.Fprintf(bot.conn, "USER %s 8 * :%s\r\n", bot.nick, bot.nick)
-	fmt.Fprintf(bot.conn, "PASS %s\r\n", bot.pass)
-	fmt.Fprintf(bot.conn, "NICK %s\r\n", bot.nick)
-	fmt.Fprintf(bot.conn, "JOIN %s\r\n", bot.channel)
-	rbuf := bufio.NewReader(bot.conn)
-	bot.reader = textproto.NewReader(rbuf)
+	fmt.Fprintf(conn.conn, "USER %s 8 * :%s\r\n", conn.nick, conn.nick)
+	fmt.Fprintf(conn.conn, "PASS %s\r\n", conn.pass)
+	fmt.Fprintf(conn.conn, "NICK %s\r\n", conn.nick)
+	fmt.Fprintf(conn.conn, "JOIN %s\r\n", conn.channel)
+	rbuf := bufio.NewReader(conn.conn)
+	conn.reader = textproto.NewReader(rbuf)
 }
 
-func (bot *Bot) Close() {
-	bot.conn.Close()
+func (conn *Conn) Close() {
+	conn.conn.Close()
 }
 
-func (bot *Bot) ReadLine() (string, error) {
-	return bot.reader.ReadLine()
+func (conn *Conn) ReadLine() (string, error) {
+	return conn.reader.ReadLine()
 }
 
-func (bot *Bot) SendPrivMSG(format string, args ...interface{}) {
-	privmsg_pref := "PRIVMSG " + bot.channel + " :"
+func (conn *Conn) SendPrivMSG(format string, args ...interface{}) {
+	privmsg_pref := "PRIVMSG " + conn.channel + " :"
 	msg := fmt.Sprintf(format, args...)
 	for _, line := range strings.Split(msg, "\n") {
 		if line == "" {
 			line = " "
 		}
 		fmt.Printf("[%s] SEND %s\n", time.Now(), privmsg_pref+line)
-		fmt.Fprintf(bot.conn, privmsg_pref+line+"\r\n")
+		fmt.Fprintf(conn.conn, privmsg_pref+line+"\r\n")
 	}
 }

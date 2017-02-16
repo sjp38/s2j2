@@ -8,13 +8,13 @@ import (
 )
 
 func main() {
-	bot := irc.NewIRC(os.Args[1],
+	c := irc.NewIRC(os.Args[1],
 		os.Args[2],
 		os.Args[3],
 		os.Args[4],
 		os.Args[5])
 
-	bot.Connect()
-	defer bot.Close()
-	bot.SendPrivMSG(strings.Join(os.Args[6:], " "))
+	c.Connect()
+	defer c.Close()
+	c.SendPrivMSG(strings.Join(os.Args[6:], " "))
 }
